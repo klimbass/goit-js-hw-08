@@ -82,23 +82,31 @@ const htmlGalleryItems = images.reduce(
 const gallery = document.querySelector(".gallery");
 gallery.insertAdjacentHTML("beforeend", htmlGalleryItems);
 
+let instance;
+
 gallery.addEventListener("click", (event) => {
   event.preventDefault();
-  const instance = basicLightbox.create(
-    `
-    <img
+  instance = basicLightbox.create(
+    `<img
     class="image"
     src="${event.target.dataset.source}"
     alt="${event.target.alt}"
-    />`
+    />`,
+    {
+      closable: true,
+      onShow: () => {
+        document.addEventListener("keydown", handleEscapeKeyPress);
+      },
+      onClose: () => {
+        document.removeEventListener("keydown", handleEscapeKeyPress);
+      },
+    }
   );
   instance.show();
-
-  if (instance.visible()) {
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        instance.close();
-      }
-    });
-  }
 });
+
+function handleEscapeKeyPress(event) {
+  if (event.key === "Escape") {
+    instance.close();
+  }
+}
